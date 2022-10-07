@@ -12,8 +12,23 @@ pub mod pallet {
     pub struct Pallet<T>(_);
 
     #[pallet::config]
+    pub trait Config: frame_support::Config {
+        type Event: From<Event<Self>> + IsType<<Self as frame_support::Config>::Event>;
+    }
+
     #[pallet::event]
-    #[pallet::storage]
+    #[pallet::generate_deposit(pub(super) fn deposit_event)]
+    pub enum Event<T: Config>{
+        ClaimCreated{who: T::AccountId, claim: T::Hash},
+        ClaimRevoked{who: T::AccountId, claim: T::Hash},
+    }
+
     #[pallet::error]
-    #[pallet::call]
+    pub enum Error<T> {
+        AlreadyClaimed,
+        NoSuchClaim,
+        NotClaimOwner,
+    }
+    
+    #[pallet::storage]
 }
