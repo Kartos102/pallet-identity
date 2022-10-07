@@ -65,4 +65,23 @@ pub mod pallet {
             Ok(());
         }
     }
+
+    pub fn revoke_claim(origin: OriginFor<T:AccountId>, claim: T:Hash){
+        // verify that the user is signed
+        let sender = ensure_signed(origin)?;
+
+        // get the claims from storage if exists
+        // else throw an error of no such claim
+        let (owner, _ ) = Claims::<T>::get(&claim).ok_or(Error::<T>::NoSuchClaim)?;
+
+        // ensure that the sender is also the owner
+        ensure!(sender == owner, Error::<T>::NotClaimOwner);
+
+        // remove the claim
+        Claims::<T>::remove(&claim);
+
+        // emit an event showing that a claim was removed.
+        Self::deposit_event(Event::ClaimRevoked(who: sender, claim));
+        Ok(())
+    }
 }
