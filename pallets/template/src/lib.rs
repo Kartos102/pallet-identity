@@ -25,7 +25,7 @@ pub mod pallet {
 	pub trait Config: frame_system::Config {
 		// define the events that would be captured
 		// for each function and parameter type
-		type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
+		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 	}
 
 	// define the storage runtime pallet macro
@@ -33,7 +33,7 @@ pub mod pallet {
 	#[pallet::storage]
 	pub(super) type Claims<T: Config> = StorageMap<
 		_,
-		Blake2_12concat,
+		Blake2_128Concat,
 		T::Hash,
 		(T::AccountId, T::BlockNumber)
 	>;
@@ -88,7 +88,7 @@ pub mod pallet {
 
 			// Dispatch an event telling the system that a claim has been created
 			// this should be recorded as a state of transition in our block
-			Self::deposit_hash(Event::ClaimCreated {
+			Self::deposit_event(Event::ClaimCreated {
 				who: sender,
 				claim,
 			});
