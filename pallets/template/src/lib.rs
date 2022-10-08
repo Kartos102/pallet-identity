@@ -92,7 +92,31 @@ pub mod pallet {
 				who: sender,
 				claim,
 			});
-            Ok(())
+			Ok(())
+		}
+
+		#[pallet::weight(0)]
+		pub fn revoke_claims(origin: OriginFor<T>, claim: T::Hash) -> DispatchResult {
+			// ensure that the user to revoke the claim is a valid
+			// and signed user
+
+			let sender = ensure_signed(origin)?;
+
+			// check that the claim which wants to be
+			// revoked actually exists
+			let (owner, _) = Claims::<T>::get(&claim).ok_or(Error::<T>::NoSuchClaim)?;
+
+			// confirm that the signed user that wants to revoke
+			// the claim is the same user that uploaded the claim
+			ensure!(sender == owner, Error::<T>::NotClaimOwner);
+
+			// then remove the claim from Map
+			Claims::<T>::remove(&claim);
+
+            // Emit an event to show that claim was revoked
+			Self::deposit_event(Event::ClaimRevoked { who: sender, claim });
+
+			Ok(())
 		}
 	}
 }
